@@ -178,8 +178,8 @@
 		final private function __construct()
 		{
 			$this->setData(array(array(0, 0), array(1, 1)));
-			$this->setAlpha(1);
-			$this->setConvThreshold(1e-3);
+			$this->setAlpha(0.1);
+			$this->setConvThreshold(1e-6);
 			$this->setMaxIters(500);
 		}
 	}
