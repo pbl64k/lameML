@@ -378,4 +378,51 @@ array(550, 80),
 		print($x.' '.$f($x)."\n");
 	}
 
+	$lr = LinReg::make();
+
+	$lr->setLog(function($x) { print($x."\n"); });
+
+	$lr->setData(array(
+array(0, 0, 70),
+array(60, 60 * 60, 73),
+array(120, 120 * 120, 72),
+array(179, 179 * 179, 82),
+array(240, 240 * 240, 84),
+			));
+
+	$lr->train();
+
+	$f = $lr->mkFunc();
+
+	foreach (array(0, 60, 120, 179, 240, 315) as $x)
+	{
+		print($x.' '.$f($x, $x * $x)."\n");
+	}
+
+	$lr = LinReg::make();
+
+	$lr->setLog(function($x) { print($x."\n"); });
+
+	$lr->setData(array(
+array(10, 10 * 10, 94),
+array(71, 71 * 71, 94),
+array(129, 129 * 129, 87),
+array(189, 189 * 189, 84),
+array(250, 250 * 250, 78),
+array(310, 310 * 310, 79),
+array(370, 370 * 370, 86),
+array(430, 430 * 430, 78),
+array(490, 490 * 490, 76),
+array(550, 550 * 550, 80),
+			));
+
+	$lr->train();
+
+	$f = $lr->mkFunc();
+
+	foreach (array(10, 71, 129, 189, 250, 310, 370, 430, 490, 550, 891) as $x)
+	{
+		print($x.' '.$f($x, $x * $x)."\n");
+	}
+
 ?>
