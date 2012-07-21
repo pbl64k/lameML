@@ -15,6 +15,10 @@
 		 */
 		private $theta = array();
 		/**
+		 * Regularization coefficient, set to zero to run unregularized regression
+		 */
+		private $lambda;
+		/**
 		 * Gradient descent step size
 		 */
 		private $alpha;
@@ -92,6 +96,13 @@
 			return $this;
 		}
 
+		final public function setLambda($lambda)
+		{
+			$this->lambda = floatval($lambda);
+			
+			return $this;
+		}
+
 		final public function setAlpha($alpha)
 		{
 			$this->alpha = floatval($alpha);
@@ -144,6 +155,7 @@
 			$grad = array_fill(0, $this->dim, 0);
 
 			$m = $this->m;
+			$lambda = $this->lambda;
 
 			for ($i = 0; $i != $this->m; ++$i)
 			{
@@ -160,13 +172,23 @@
 						}, $grad, $this->x[$i]);
 			}
 
+			$regTheta = $theta;
+
+			// We do not regularize the intercept term
+			$regTheta[0] = 0;
+
 			return array(
-					$cost / (2 * $m),
-					array_map(
-							function($x) use($m)
+					($cost / (2 * $m)) +
+					($lambda * array_sum(array_map(
+							function($theta)
 							{
-								return $x / $m;
-							}, $grad),
+								return $theta * $theta;
+							}, $regTheta))),
+					array_map(
+							function($x, $theta) use($m, $lambda)
+							{
+								return ($x + ($lambda * $theta)) / $m;
+							}, $grad, $regTheta),
 					);
 		}
 
@@ -209,6 +231,7 @@
 		final private function __construct()
 		{
 			$this->setData(array(array(0, 0), array(1, 1)));
+			$this->setLambda(0);
 			$this->setAlpha(1);
 			$this->setConvThreshold(1e-6);
 			$this->setMaxIters(5000);

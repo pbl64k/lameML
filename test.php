@@ -13,6 +13,8 @@
 		$lr->setLog(function($x) { print($x."\n"); });
 	
 		$lr->setData($data);
+		// Just for kicks. Remove before consumption.
+		$lr->setLambda(0.01);
 	
 		$lr->train();
 	
