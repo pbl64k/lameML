@@ -10,6 +10,7 @@
 		private $y;
 		private $m;
 		private $dim;
+		private $enrichment;
 		/**
 		 * Current hypothesis - list of parameters of a linear approximation
 		 */
@@ -47,7 +48,7 @@
 			return new self;
 		}
 
-		final public function setData(array $data)
+		final public function setData(array $data, $enrichment = 1)
 		{
 			$this->data = $data;
 			$this->m = count($this->data);
@@ -64,12 +65,18 @@
 				throw new MlException('Dimensionality of input should be at least 2');
 			}
 
+			$this->enrichment = $enrichment;
+
+			$this->preprocessData();
+
+			$this->enrichData($enrichment);
+
+			$this->dim = count($this->x[0]) + 1;
+
 			if ($this->dim !== count($this->theta))
 			{
 				$this->resetTheta();
 			}
-
-			$this->preprocessData();
 
 			$this->normalizeData();
 
@@ -211,10 +218,20 @@
 			$ym = $this->ym;
 			$ys = $this->ys;
 
+			$enrichment = $this->enrichment;
+
+			$enrich =
+					function(array $x) use($self, $enrichment)
+					{
+						return $self->enrichRow($x, $enrichment);
+					};
+
 			return
-					function() use($self, $theta, $xm, $xs, $ym, $ys)
+					function() use($self, $theta, $xm, $xs, $ym, $ys, $enrich)
 					{
 						$x = func_get_args();
+
+						$x = $enrich($x);
 
 						array_unshift($x, 1);
 
@@ -226,6 +243,29 @@
 
 						return ($self->estimate($theta, $x) * $ys) + $ym;
 					};
+		}
+
+		final public function enrichRow($row, $enrichment)
+		{
+			if ($enrichment == 1)
+			{
+				return $row;
+			}
+
+			$result = $row;
+
+			foreach ($row as $i => $x)
+			{
+				$xe = $this->enrichRow(array_slice($row, $i), $enrichment - 1);
+
+				$result = array_merge($result, array_map(
+						function($xe) use($x)
+						{
+							return $xe * $x;
+						}, $xe));
+			}
+
+			return $result;
 		}
 
 		final private function __construct()
@@ -249,12 +289,22 @@
 				$this->x[] = $x;
 				$this->y[] = $y;
 			}
+		}
 
-			$this->x = MatrixOps::transpose($this->x);
+		final private function enrichData($enrichment)
+		{
+			print_r($this->x);
+			foreach ($this->x as $i => $x)
+			{
+				$this->x[$i] = $this->enrichRow($x, $enrichment);
+			}
+			print_r($this->x);
 		}
 
 		final private function normalizeData()
 		{
+			$this->x = MatrixOps::transpose($this->x);
+
 			$nx = array_map(
 					function($x)
 					{

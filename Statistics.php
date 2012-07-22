@@ -1,6 +1,8 @@
 <?php
 
-	/* Some simple statistical functions */
+	/**
+	 * Some simple statistical functions
+	 */
 	final class Statistics
 	{
 		/**

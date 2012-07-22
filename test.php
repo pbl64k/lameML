@@ -6,15 +6,19 @@
 	require_once(dirname(__FILE__).'/GradientDescent.php');
 	require_once(dirname(__FILE__).'/LinearRegression.php');
 
-	function testOn($data, $test, $sq = FALSE)
+	function testOn(array $arg)
 	{
+		$data = $arg[0];
+		$test = $arg[1];
+		$lambda = $arg[2];
+		$enrichment = $arg[3];
+
 		$lr = LinearRegression::make();
 	
 		$lr->setLog(function($x) { print($x."\n"); });
 	
-		$lr->setData($data);
-		// Just for kicks. Remove before consumption.
-		$lr->setLambda(0.01);
+		$lr->setData($data, $enrichment);
+		$lr->setLambda($lambda);
 	
 		$lr->train();
 	
@@ -22,9 +26,9 @@
 	
 		foreach ($test as $x)
 		{
-			if ($sq)
+			if (is_array($x))
 			{
-				print($x.' '.$f($x, $x * $x)."\n");
+				print('('.implode(', ', $x).') '.call_user_func_array($f, $x)."\n");
 			}
 			else
 			{
@@ -33,16 +37,20 @@
 		}
 	}
 
-	testOn(array(
+	$tests = array();
+
+	$tests[1] = array(array(
 			array(0, 70),
 			array(60, 73),
 			array(120, 72),
 			array(179, 82),
 			array(240, 84),
 			),
-			array(0, 60, 120, 179, 240, 315));
+			array(0, 60, 120, 179, 240, 315),
+			0,
+			1);
 
-	testOn(array(
+	$tests[2] = array(array(
 			array(10, 94),
 			array(71, 94),
 			array(129, 87),
@@ -54,9 +62,11 @@
 			array(490, 76),
 			array(550, 80),
 			),
-			array(10, 71, 129, 189, 250, 310, 370, 430, 490, 550, 891));
+			array(10, 71, 129, 189, 250, 310, 370, 430, 490, 550, 891),
+			0.01,
+			1);
 
-	testOn(array(
+	$tests[3] = array(array(
 			array(1, 15.001),
 			array(2, 15.02),
 			array(3, 14.9998),
@@ -67,37 +77,79 @@
 			array(8, 15.002),
 			array(9, 15.0003),
 			array(10, 15.0005),
-			), array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10));
+			), array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
+			0.01,
+			1);
 
-	testOn(array(
-			array(-2, -2 * -2, 7.997),
-			array(-1, -1 * -1, 2.995),
-			array(0, 0 * 0, 0.002),
-			array(1, 1 * 1, -0.995),
-			array(2, 2 * 2, -0.0001),
-			array(3, 3 * 3, 3.0025),
-			array(4, 4 * 4, 8.0005),
-			), array(-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6), TRUE);
+	$tests[4] = array(array(
+			array(-2, 7.997),
+			array(-1, 2.995),
+			array(0, 0.002),
+			array(1, -0.995),
+			array(2, -0.0001),
+			array(3, 3.0025),
+			array(4, 8.0005),
+			), array(-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6),
+			0.000001,
+			2);
 
-	testOn(array(
-			array(0, 0, 70),
-			array(60, 60 * 60, 73),
-			array(120, 120 * 120, 72),
-			array(179, 179 * 179, 82),
-			array(240, 240 * 240, 84),
-			), array(0, 60, 120, 179, 240, 315), TRUE);
+	$tests[5] = array(array(
+			array(0, 70),
+			array(60, 73),
+			array(120, 72),
+			array(179, 82),
+			array(240, 84),
+			), array(0, 60, 120, 179, 240, 315),
+			0.0001,
+			2);
 
-	testOn(array(
-			array(10, 10 * 10, 94),
-			array(71, 71 * 71, 94),
-			array(129, 129 * 129, 87),
-			array(189, 189 * 189, 84),
-			array(250, 250 * 250, 78),
-			array(310, 310 * 310, 79),
-			array(370, 370 * 370, 86),
-			array(430, 430 * 430, 78),
-			array(490, 490 * 490, 76),
-			array(550, 550 * 550, 80),
-			), array(10, 71, 129, 189, 250, 310, 370, 430, 490, 550, 891), TRUE);
+	$tests[6] = array(array(
+			array(10, 94),
+			array(71, 94),
+			array(129, 87),
+			array(189, 84),
+			array(250, 78),
+			array(310, 79),
+			array(370, 86),
+			array(430, 78),
+			array(490, 76),
+			array(550, 80),
+			), array(10, 71, 129, 189, 250, 310, 370, 430, 490, 550, 891),
+			0.0001,
+			2);
+
+	// x = a^3 + ab + 1
+	$tests[7] = array(array(
+			array(0, 0, 1),
+			array(0, 1, 1),
+			array(0, 2, 1),
+			array(1, 0, 2),
+			array(1, 1, 3),
+			array(1, 2, 4),
+			array(2, 0, 9),
+			array(2, 1, 11),
+			array(2, 2, 13),
+			),
+			array(
+			array(0, 0),
+			array(0, 1),
+			array(0, 2),
+			array(1, 0),
+			array(1, 1),
+			array(1, 2),
+			array(2, 0),
+			array(2, 1),
+			array(2, 2),
+			array(3, 3),
+			),
+			0,
+			3);
+
+	if ((! array_key_exists(1, $argv)) || (! array_key_exists(intval($argv[1]), $tests)))
+	{
+		$argv[1] = 1;
+	}
+
+	testOn($tests[$argv[1]]);
 
 ?>

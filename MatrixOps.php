@@ -1,7 +1,7 @@
 <?php
 
 	/**
-	 * Simple operations on matrices representes as arrays of arrays
+	 * Simple operations on matrices represented as arrays of arrays
 	 */
 	final class MatrixOps
 	{

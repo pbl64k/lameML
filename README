@@ -1,3 +1,7 @@
 Yet another lame machine learning lib.
 
 I really needed it, I swear.
+
+In case it's not readily apparent, this shouldn't be used for anything
+serious. Grab a real linear algebra lib.
+
