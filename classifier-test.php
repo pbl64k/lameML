@@ -3,6 +3,7 @@
 	require_once(dirname(__FILE__).'/Exceptions.php');
 	require_once(dirname(__FILE__).'/MatrixOps.php');
 	require_once(dirname(__FILE__).'/Statistics.php');
+	require_once(dirname(__FILE__).'/KMeans.php');
 	require_once(dirname(__FILE__).'/GradientDescent.php');
 	require_once(dirname(__FILE__).'/FooRegression.php');
 	require_once(dirname(__FILE__).'/LogisticRegression.php');
@@ -109,6 +110,50 @@
 			),
 			0,
 			1);
+
+	$km = KMeans::make();
+
+	$km->setLog(function($x) { print($x."\n"); });
+
+	$km->setData(array(
+			array(0, 0),
+			array(1, 1),
+			array(-0.5, 0.5),
+			array(-1, 0),
+			array(2, -0.5),
+			array(0, -1),
+			array(3, 3),
+			array(2, 3),
+			array(1, 3.5),
+			array(2.5, 2),
+			array(4, 4),
+			array(2, 1.5),
+			));
+
+	$tests[3] = array(
+			$km->cluster(2),
+			array(
+			array(0, 0),
+			array(1, 1),
+			array(-0.5, 0.5),
+			array(-1, 0),
+			array(2, -0.5),
+			array(0, -1),
+			array(3, 3),
+			array(2, 3),
+			array(1, 3.5),
+			array(2.5, 2),
+			array(4, 4),
+			array(2, 1.5),
+			array(0.5, 0.5),
+			array(2, 1),
+			array(2, 2),
+			array(-1.5, -1.5),
+			array(5, 5),
+			array(8, 0),
+			),
+			0.00001,
+			2);
 
 	if ((! array_key_exists(1, $argv)) || (! array_key_exists(intval($argv[1]), $tests)))
 	{

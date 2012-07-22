@@ -32,7 +32,6 @@
 		protected $normalizeY;
 		protected $log = NULL;
 
-
 		/**
 		 * Means and standard deviations of the original data
 		 * Needed for normalization and to recover unnormalized values
@@ -155,6 +154,8 @@
 			$theta = $gd->descend();
 
 			$this->theta = $theta;
+
+			return $this;
 		}
 
 		abstract public function costGradFunc(array $theta);
@@ -208,6 +209,8 @@
 				$this->x[] = $x;
 				$this->y[] = $y;
 			}
+
+			return $this;
 		}
 
 		final protected function enrichData($enrichment)
@@ -216,6 +219,8 @@
 			{
 				$this->x[$i] = $this->enrichRow($x, $enrichment);
 			}
+
+			return $this;
 		}
 
 		final protected function normalizeData()
@@ -246,6 +251,8 @@
 			{
 				list($this->ym, $this->ys, $this->y) = Statistics::normalize($this->y);
 			}
+
+			return $this;
 		}
 	}
 

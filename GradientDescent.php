@@ -129,6 +129,8 @@
 
 				$log($str);
 			}
+
+			return $this;
 		}
 	}
 

@@ -102,6 +102,7 @@
 		final protected function __construct()
 		{
 			parent::__construct();
+
 			$this->setNormalizeY(TRUE);
 		}
 	}
