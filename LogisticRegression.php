@@ -1,9 +1,6 @@
 <?php
 
-	/**
-	 * Approximates a given data set by a linear function
-	 */
-	final class LinearRegression extends FooRegression
+	final class LogisticRegression extends FooRegression
 	{
 		final static public function make()
 		{
@@ -20,16 +17,18 @@
 
 			for ($i = 0; $i != $this->m; ++$i)
 			{
+				$y = $this->y[$i];
+
 				$h = $this->estimate($theta, $this->x[$i]);
 
-				$d = $h - $this->y[$i];
+				$d = ($y * log($h)) + ((1 - $y) * log(1 - $h));
 
-				$cost += ($d * $d);
+				$cost += $d;
 
 				$grad = array_map(
-						function($grad, $x) use($d)
+						function($grad, $x) use($h, $y)
 						{
-							return $grad + ($d * $x);
+							return $grad + (($h - $y) * $x);
 						}, $grad, $this->x[$i]);
 			}
 
@@ -39,8 +38,8 @@
 			$regTheta[0] = 0;
 
 			return array(
-					($cost / (2 * $m)) +
-					($lambda * array_sum(array_map(
+					($cost / (-$m)) +
+					(($lambda / (2 * $m)) * array_sum(array_map(
 							function($theta)
 							{
 								return $theta * $theta;
@@ -55,11 +54,11 @@
 
 		final public function estimate(array $theta, array $x)
 		{
-			return array_sum(array_map(
+			return $this->sigmoid(array_sum(array_map(
 					function($theta, $x)
 					{
 						return $theta * $x;
-					}, $theta, $x));
+					}, $theta, $x)));
 		}
 
 		final public function mkFunc()
@@ -69,8 +68,6 @@
 			$theta = $this->theta;
 			$xm = $this->xm;
 			$xs = $this->xs;
-			$ym = $this->ym;
-			$ys = $this->ys;
 
 			$enrichment = $this->enrichment;
 
@@ -81,7 +78,7 @@
 					};
 
 			return
-					function() use($self, $theta, $xm, $xs, $ym, $ys, $enrich)
+					function() use($self, $theta, $xm, $xs, $enrich)
 					{
 						$x = func_get_args();
 
@@ -95,14 +92,19 @@
 									return ($x - $m) / $s;
 								}, $x, $xm, $xs);
 
-						return ($self->estimate($theta, $x) * $ys) + $ym;
+						return $self->estimate($theta, $x);
 					};
+		}
+
+		final public function sigmoid($x)
+		{
+			return 1 / (1 + exp(-$x));
 		}
 
 		final protected function __construct()
 		{
 			parent::__construct();
-			$this->setNormalizeY(TRUE);
+			$this->setNormalizeY(FALSE);
 		}
 	}
 

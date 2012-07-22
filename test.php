@@ -4,6 +4,7 @@
 	require_once(dirname(__FILE__).'/MatrixOps.php');
 	require_once(dirname(__FILE__).'/Statistics.php');
 	require_once(dirname(__FILE__).'/GradientDescent.php');
+	require_once(dirname(__FILE__).'/FooRegression.php');
 	require_once(dirname(__FILE__).'/LinearRegression.php');
 
 	function testOn(array $arg)
