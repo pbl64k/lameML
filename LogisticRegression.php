@@ -20,8 +20,19 @@
 				$y = $this->y[$i];
 
 				$h = $this->estimate($theta, $this->x[$i]);
+				$h1 = 1 - $h;
 
-				$d = ($y * log($h)) + ((1 - $y) * log(1 - $h));
+				if ($h <= 1e-16)
+				{
+					$h = 1e-16;
+				}
+
+				if ($h1 <= 1e-16)
+				{
+					$h1 = 1e-16;
+				}
+
+				$d = ($y * log($h)) + ((1 - $y) * log($h1));
 
 				$cost += $d;
 
